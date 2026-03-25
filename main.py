@@ -14,10 +14,9 @@ class GameObject(ABC):
         pass
 
 class Item(GameObject):
-
-    def __init__(self, nombre: str, potencia: int, precio: int = 0):  # CORREGIDO
-        super().__init__(nombre)  # CORREGIDO: super().__init__
-        self.__potencia : int  = potencia  # Atributo privado
+    def __init__(self, nombre: str, potencia: int, precio: int = 0):
+        super().__init__(nombre)
+        self.__potencia : int  = potencia
         self.__precio : int = precio
 
     @property
@@ -28,8 +27,8 @@ class Item(GameObject):
         return f"[ITEM] {self.nombre} (Poder: {self.potencia})"
 
 class Actor(GameObject):
-    def __init__(self, nombre: str, integridad: int):  # CORREGIDO
-        super().__init__(nombre)  # CORREGIDO
+    def __init__(self, nombre: str, integridad: int):
+        super().__init__(nombre)
         self._integridad : int = integridad
 
     def esta_vivo(self) -> bool:
@@ -40,18 +39,18 @@ class Actor(GameObject):
         pass
 
 class Player(Actor):
-    def __init__(self, nombre: str):  # CORREGIDO
-        super().__init__(nombre, 100)  # CORREGIDO
+    def __init__(self, nombre: str):
+        super().__init__(nombre, 100)
         self.energia : int = 50
         self.bits : int = 0
-        self.mochila: list[Item] = []
+        self.morral: list[Item] = [] # SE CAMBIÓ MOCHILA POR MORRAL
 
     def obtener_reporte(self) -> str:
         return f" {self.nombre} |  {self._integridad} % Integridad |  {self.energia}  Energía |  {self.bits} Bits"
 
 class Boss(Actor):
-    def __init__(self, nombre: str, escudo: int):  # CORREGIDO
-        super().__init__(nombre, 100)  # CORREGIDO
+    def __init__(self, nombre: str, escudo: int):
+        super().__init__(nombre, 100)
         self.escudo : int = escudo
 
     def recibir_danio(self, cantidad: int):
@@ -71,6 +70,9 @@ class Engine:
         self.nivel_actual : int  = 0
         self.ejecutando = True
 
+    # ==========================================================
+    # FUNCIONALIDAD 1 (JOHN GALLEGO): SISTEMA DE ECONOMÍA (TIENDA)
+    # ==========================================================
     def tienda(self):
         print("\n TIENDA DE SISTEMA ")
         parche_pro = Item("Parche_Ultra", 70, 35)
@@ -78,19 +80,22 @@ class Engine:
         op = input("Seleccione: ")
         if op == "1" and self.jugador.bits >= 35:
             self.jugador.bits -= 35
-            self.jugador.mochila.append(parche_pro)
+            self.jugador.morral.append(parche_pro) # SE USÓ MORRAL
             print(" Compra exitosa.")
         else:
             print("Saldo insuficiente, debes conseguir mas bits")
 
+    # ==========================================================
+    # FUNCIONALIDAD 2 (SAMUEL MARROQUÍN): MECÁNICA DE COMBATE FINAL
+    # ==========================================================
     def batalla_jefe(self):
         print(f"\n COMBATIENDO AL JEFE: {self.jefe_final.nombre}")
-        if not self.jugador.mochila:
+        if not self.jugador.morral: # SE USÓ MORRAL
             print(" Sin herramientas. Recibiste daños directos.")
             self.jugador._integridad -= 20
             return
 
-        ataque = self.jugador.mochila.pop(0)
+        ataque = self.jugador.morral.pop(0) # SE USÓ MORRAL
         self.jefe_final.recibir_danio(ataque.potencia)
 
         if self.jefe_final.escudo <= 0:
@@ -116,6 +121,9 @@ class Engine:
             try:
                 op = input("\nSeleccione acción: ")
 
+                # ==========================================================
+                # FUNCIONALIDAD 3 (CAMILA PRADILLA): EXPLORACIÓN Y RECURSOS
+                # ==========================================================
                 if op == "1":
                     self.jugador.energia -= 5
                     if random.random() > 0.4:
@@ -127,8 +135,8 @@ class Engine:
                         self.jugador._integridad -= 10
 
                 elif op == "2":
-                    if self.nivel_actual < len(self.sectores) and self.jugador.mochila:
-                        parche = self.jugador.mochila.pop(0)
+                    if self.nivel_actual < len(self.sectores) and self.jugador.morral:
+                        parche = self.jugador.morral.pop(0)
                         if parche.potencia >= self.sectores[self.nivel_actual]["dificultad"]:
                             print(f" Sector {self.sectores[self.nivel_actual]['nombre']} reparado.")
                             self.nivel_actual += 1
@@ -136,7 +144,6 @@ class Engine:
                             print(" Potencia insuficiente.")
                     else:
                         print(" Morral vacío o sectores ya reparados.")
-
                 elif op == "3":
                     self.tienda()
 
@@ -157,5 +164,5 @@ class Engine:
         if not self.jugador.esta_vivo():
             print("\n SISTEMA COLAPSADO. PERDISTE EL JUEGO .")
 
-
-
+if __name__ == "__main__":
+    Engine().jugar()
