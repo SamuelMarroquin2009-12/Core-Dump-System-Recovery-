@@ -143,7 +143,7 @@ class Engine:
                 elif op == "4":
                     self.jugador._integridad -= 15
                     self.jugador.energia += 40
-                    print("🔋 Energía recargada.")
+                    print(" Energía recargada.")
 
                 elif op == "5":
                     self.batalla_jefe()
