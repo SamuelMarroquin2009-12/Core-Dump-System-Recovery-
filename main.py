@@ -13,7 +13,51 @@ class GameObject(ABC):
     def obtener_reporte(self) -> str:
         pass
 
+class Item(GameObject):
+    def __init__(self, nombre: str, potencia: int, precio: int = 0):
+        super().__init__(nombre)
+        self.__potencia : int  = potencia
+        self.__precio : int = precio
 
+    @property
+    def potencia(self):
+        return self.__potencia
+
+    def obtener_reporte(self) -> str:
+        return f"[ITEM] {self.nombre} (Poder: {self.potencia})"
+
+class Actor(GameObject):
+    def __init__(self, nombre: str, integridad: int):
+        super().__init__(nombre)
+        self._integridad : int = integridad
+
+    def esta_vivo(self) -> bool:
+        return self._integridad > 0
+
+    @abstractmethod
+    def obtener_reporte(self) -> str:
+        pass
+
+class Player(Actor):
+    def __init__(self, nombre: str):
+        super().__init__(nombre, 100)
+        self.energia : int = 50
+        self.bits : int = 0
+        self.morral: list[Item] = [] # SE CAMBIÓ MOCHILA POR MORRAL
+
+    def obtener_reporte(self) -> str:
+        return f" {self.nombre} |  {self._integridad} % Integridad |  {self.energia}  Energía |  {self.bits} Bits"
+
+class Boss(Actor):
+    def __init__(self, nombre: str, escudo: int):
+        super().__init__(nombre, 100)
+        self.escudo : int = escudo
+
+    def recibir_danio(self, cantidad: int):
+        self.escudo -= cantidad
+
+    def obtener_reporte(self) -> str:
+        return f" {self.nombre} | Escudo: {self.escudo}"
 
 class Engine:
     def __init__(self):
@@ -91,15 +135,16 @@ class Engine:
                         self.jugador._integridad -= 10
 
                 elif op == "2":
-                    if self.nivel_actual < len(self.sectores) and self.jugador.morral:
-                        parche = self.jugador.morral.pop(0)
+                    if self.nivel_actual < len(self.sectores) and self.jugador.morral: # SE USÓ MORRAL
+                        parche = self.jugador.morral.pop(0) # SE USÓ MORRAL
                         if parche.potencia >= self.sectores[self.nivel_actual]["dificultad"]:
                             print(f" Sector {self.sectores[self.nivel_actual]['nombre']} reparado.")
                             self.nivel_actual += 1
                         else:
                             print(" Potencia insuficiente.")
                     else:
-                        print(" Morral vacío o sectores ya reparados.")
+                        print(" Morral vacío o sectores ya reparados.") # SE CAMBIÓ TEXTO A MORRAL
+
                 elif op == "3":
                     self.tienda()
 
